@@ -9,6 +9,17 @@ set -eu
 ## where the first element is the import path and the second is a tag
 ## or commit SHA in the project.
 
+# Godeps default file is './Godeps' (can be overriden by -f)
+godeps="Godeps"
+
+# Absolute path to GPM
+if [[ "$0" = /* ]]
+then
+  gpm=$0
+else
+  gpm=$(pwd)/$0
+fi
+
 ## Functions
 
 # Iterates over Godep file dependencies and sets
@@ -32,6 +43,12 @@ set_dependencies() {
       [ -d .hg ] && hg update -q "$version"
       [ -d .git ] && git checkout -q "$version"
       [ -d .bzr ] && bzr revert -q -r "$version"
+
+      if [[ -f "$godeps" ]]
+      then
+        $gpm
+      fi
+
     ) &
   done < <(echo "$deps")
   wait
@@ -42,8 +59,7 @@ set_dependencies() {
 ## Main execution
 
 # Parse command line arguemnts
-# Godeps default file is './Godeps' (can be overriden by -f)
-godeps="Godeps"
+
 
 while getopts “va:Hf:” OPTION
 do
