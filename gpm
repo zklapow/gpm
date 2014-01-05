@@ -14,12 +14,19 @@ set -eu
 # Iterates over Godep file dependencies and sets
 # the specified version on each of them.
 set_dependencies() {
-  while read package version; do
+  while read package version url; do
     (
       install_path="${GOPATH%%:*}/src/${package%%/...}"
       [[ -e "$install_path/.git/index.lock" ]] && wait
       echo ">> Getting package "$package""
-      go get -u -d "$package"
+
+      if [[ ! -z $url ]]
+      then
+        git clone $url $install_path > /dev/null 2>&1
+      else
+        go get -u -d "$package"
+      fi
+
       echo ">> Setting $package to version $version"
       cd $install_path
       [ -d .hg ] && hg update -q "$version"
