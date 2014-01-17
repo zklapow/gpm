@@ -49,6 +49,8 @@ set_dependencies() {
         $gpm
       fi
 
+      go get ./...
+      go install ./...
     ) &
   done < <(echo "$deps")
   wait
